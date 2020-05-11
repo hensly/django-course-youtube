@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+    
+    {% block content %}
+    <h1 class="mt-4">Авторизация</h1>
+    <p><a href="/">Вернуться назад</a></p>
+
+<div class="col-4">
+<form id="add_form" method="post">
+            {% csrf_token %}
+            {{form}}
+            <button form="add_form" type="submit" class="btn btn-primary mt-4">Добавить</button>
+        </form>
+</div>
+
+{% endblock %}

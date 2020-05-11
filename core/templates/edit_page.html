@@ -1,0 +1,139 @@
+{% extends 'index.html' %}
+    
+    {% block content %}
+    <h1 class="mt-4">Админ панель</h1>
+    
+    
+    
+    <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Добавить новую статью
+</button>
+
+
+    {% if success %}
+    <p style="color:red">Запись добавлена</p>
+    {% endif %}
+    
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for m in messages %}
+            {{m}}
+        {% endfor %}
+    </div>
+    
+    
+    {% endif %}
+    
+    
+    
+    
+    
+    {% if update %}
+    
+    {% if success_update %}
+    <p style="color:red">Запись обновлена</p>
+    {% endif %}
+    <p class="mt-4">Страница редактирования</p>
+    <p><a href="{% url 'edit_page' %}">Вернуться назад</a></p>
+    
+    <form id="update_data" method="post">
+            {% csrf_token %}
+            {{form}}
+        </form>
+    <button form="update_data" type="submit" class="btn btn-primary">Обновить</button>
+    
+    {% else %}
+    
+    
+    
+    <table class="table table-bordered mt-4">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">Дата создания</th>
+      <th scope="col">Название</th>
+      <th scope="col">Редактирование</th>
+      <th scope="col">Удаление</th>
+    </tr>
+  </thead>
+  <tbody>
+      
+      {% for i in list_articles %}
+    <tr {% if i.id|slugify == request.GET.id %} style="background:red" {% endif %}>
+      <th>{{i.id}}</th>
+      <td>{{i.create_date|date:'d.m.Y'}} - {{i.author}}</td>
+      <td>{{i.name}}</td>
+      <td>
+          
+          {% if request.user == i.author %}
+          <a href="{% url 'update_page' i.id %}">редактировать</a>
+          {% else %}
+          
+          нет доступа
+          {% endif %}
+          
+          </td>
+      <td>
+         
+         
+         
+          {% if request.user == i.author %}
+          <form id="delete_form{{i.id}}" action="{% url 'delete_page' i.id %}" method="post">{% csrf_token %}</form>
+          <a href="javascript:void()" onclick="delete_question{{i.id}}()">удалить</a>
+          <script>
+              function delete_question{{i.id}}() {
+                  if (confirm("Вы уверены")) {
+                      document.getElementById('delete_form{{i.id}}').submit()
+                  }
+                  
+              }
+              
+              </script>
+
+          {% else %}
+          
+          нет доступа
+        
+                    
+            {% endif %}
+          
+          
+          </td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+{% endif %}
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="add_form" method="post">
+            {% csrf_token %}
+            {{form}}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">закрыть</button>
+        <button form="add_form" type="submit" class="btn btn-primary">Добавить</button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+   {% endblock %}
