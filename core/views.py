@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,HttpResponse
 
-from .models import Articles
+from .models import Articles,Comments
 from django.views.generic import ListView, DetailView,CreateView, UpdateView,DeleteView
 from django.views.generic.edit import FormMixin
 from .forms import ArticleForm, AuthUserForm, RegisterUserForm,CommentForm
@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+
+from django.template import Context, Template
 
 
 class HomeListView(ListView):
@@ -64,8 +66,31 @@ class HomeDetailView(CustomSuccessMessageMixin, FormMixin, DetailView):
         self.object.save()
         return super().form_valid(form)
     
+
+
+
+def update_comment_status(request, pk, type):
+    item = Comments.objects.get(pk=pk)
+    if request.user != item.article.author:
+        return HttpResponse('deny')
     
+    if type == 'public':
+        import operator
+        item.status = operator.not_(item.status)
+        item.save()
+        template = 'comment_item.html'
+        context = {'item':item, 'status_comment':'Комментарий опубликован'}
+        return render(request, template, context)
+        
+    elif type == 'delete':
+        item.delete()
+        return HttpResponse('''
+        <div class="alert alert-success">
+        Комментарий удален
+        </div>
+        ''')
     
+    return HttpResponse('1')
 
 
 

@@ -37,11 +37,9 @@
     {% for item in get_article.comments_articles.all %}
     
     <li>
-    Дата создания: {{item.create_date}} <br>
-    Автор статьи: {{item.author}} <br>
-    Статус статьи: {{item.status}} <br><br>
-    
-    {{item.text}}
+
+    {% include 'comment_item.html' %}
+
     </li>
     
     {% endfor %}
@@ -66,4 +64,43 @@
     </div>
     
     
+{% endblock %}
+
+
+{% block js %}
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<script>
+    $('body').on('click', '.update_status', function(event){
+        event.preventDefault();
+        if (confirm('Вы уверены')) {
+            var url = $(this).attr('data-url')
+            var tag_li = $(this).parent()
+            console.log(url)
+            
+            $.ajax({
+                url:url,
+                type: 'GET',
+                success: function(response) {
+                    tag_li.html(response)
+                    console.log(response)
+                }
+            })
+            
+        }
+
+    })
+</script>
+
+
+
+
+
+
+
+
+
+
+
 {% endblock %}

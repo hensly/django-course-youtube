@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from .middleware import get_current_user
+from django.db.models import Q
 
 # Create your models here.
 class Articles(models.Model):
@@ -16,6 +17,11 @@ class Articles(models.Model):
         verbose_name='Статью'
         verbose_name_plural='Статьи'
 
+class StatusFilterComments(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(Q(status=False, author = get_current_user()) | Q(status=False, article__author=get_current_user()) | Q(status=True))
+    
+
 
 class Comments(models.Model):
     article = models.ForeignKey(Articles, on_delete = models.CASCADE, verbose_name='Статья', blank = True, null = True,related_name='comments_articles' )
@@ -23,3 +29,5 @@ class Comments(models.Model):
     create_date = models.DateTimeField(auto_now=True)
     text = models.TextField(verbose_name='Текст комментария')
     status = models.BooleanField(verbose_name='Видимость статьи', default=False)
+    objects  = StatusFilterComments()
+
